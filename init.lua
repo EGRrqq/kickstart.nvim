@@ -208,6 +208,12 @@ vim.keymap.set('v', '<A-Up>', ":m '<-2<CR>gv=gv")
 -- Delete without buffer
 vim.keymap.set('x', '<leader>p', [["_dP]])
 
+-- Commands for saving and quitting
+vim.api.nvim_create_user_command('W', 'w', {})
+vim.api.nvim_create_user_command('Q', 'q', {})
+vim.api.nvim_create_user_command('Wq', 'wq', {})
+vim.api.nvim_create_user_command('WQ', 'wq', {})
+
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
 
@@ -751,7 +757,9 @@ require('lazy').setup({
         json = { 'biome-check', stop_after_first = true },
         css = { 'biome-check', stop_after_first = true },
         html = { 'prettierd', stop_after_first = true },
-        glsl = { 'glsl_analyzer' },
+        glsl = { 'glsl_analyzer', stop_after_first = true },
+        c = { 'clang-format', stop_after_first = true },
+        cpp = { 'clang-format', stop_after_first = true },
       },
     },
   },
