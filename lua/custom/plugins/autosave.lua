@@ -1,9 +1,9 @@
 return {
-  'brianhuster/autosave.nvim',
-  event = 'InsertEnter',
-  opts = {
-    disable_inside_paths = {
-      vim.fn.stdpath 'config',
-    },
-  },
+  'okuuva/auto-save.nvim',
+
+  config = function()
+    require('auto-save').setup {
+      noautocmd = true,
+    }
+  end,
 }
