@@ -185,34 +185,39 @@ vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' }
 --  Use CTRL+<hjkl> to switch between windows
 --
 --  See `:help wincmd` for a list of all window commands
+
+-- Focus move
 vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left window' })
 vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
 vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
 
 -- Go to the file tree
-vim.keymap.set('n', '<leader>pv', vim.cmd.Ex)
+vim.keymap.set('n', '<leader>pv', vim.cmd.Ex, { desc = 'Open the file tree' })
 
 -- Keeps the cursor in the center of the screen
-vim.keymap.set('n', '<C-d>', '<C-d>zz')
-vim.keymap.set('n', '<C-u>', '<C-u>zz')
-vim.keymap.set('n', 'n', 'nzzzv')
-vim.keymap.set('n', 'N', 'Nzzzv')
+vim.keymap.set('n', '<C-d>', '<C-d>zz', { desc = 'Scroll down and center cursor' })
+vim.keymap.set('n', '<C-u>', '<C-u>zz', { desc = 'Scroll up and center cursor' })
+vim.keymap.set('n', 'n', 'nzzzv', { desc = 'Next search result and center cursor' })
+vim.keymap.set('n', 'N', 'Nzzzv', { desc = 'Previous search result and center cursor' })
 
 -- Move the line up/down
-vim.keymap.set('v', 'J', ":m '>+1<CR>gv=gv")
-vim.keymap.set('v', 'K', ":m '<-2<CR>gv=gv")
-vim.keymap.set('v', '<A-Down>', ":m '>+1<CR>gv=gv")
-vim.keymap.set('v', '<A-Up>', ":m '<-2<CR>gv=gv")
+vim.keymap.set('v', 'J', ":m '>+1<CR>gv=gv", { desc = 'Move selected line down' })
+vim.keymap.set('v', 'K', ":m '<-2<CR>gv=gv", { desc = 'Move selected line up' })
+vim.keymap.set('v', '<A-Down>', ":m '>+1<CR>gv=gv", { desc = 'Move selected line down (Alt)' })
+vim.keymap.set('v', '<A-Up>', ":m '<-2<CR>gv=gv", { desc = 'Move selected line up (Alt)' })
 
 -- Delete without buffer
-vim.keymap.set('x', '<leader>p', [["_dP]])
+vim.keymap.set('x', '<leader>p', [["_dP]], { desc = 'Paste without affecting the clipboard' })
+
+-- Save the current file
+vim.keymap.set('n', '<C-s>', ':w<CR>', { desc = 'Save the current file' })
 
 -- Commands for saving and quitting
-vim.api.nvim_create_user_command('W', 'w', {})
-vim.api.nvim_create_user_command('Q', 'q', {})
-vim.api.nvim_create_user_command('Wq', 'wq', {})
-vim.api.nvim_create_user_command('WQ', 'wq', {})
+vim.api.nvim_create_user_command('W', 'w', { desc = 'Save the current file' })
+vim.api.nvim_create_user_command('Q', 'q', { desc = 'Quit the current buffer' })
+vim.api.nvim_create_user_command('Wq', 'wq', { desc = 'Save and quit the current buffer' })
+vim.api.nvim_create_user_command('WQ', 'wq', { desc = 'Save and quit the current buffer (uppercase)' })
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
