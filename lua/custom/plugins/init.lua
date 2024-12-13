@@ -5,7 +5,4 @@
 return {
   -- vim motion study
   'ThePrimeagen/vim-be-good',
-
-  --"surroundings": parentheses, brackets, quotes, XML tags, and more
-  'tpope/vim-surround',
 }
