@@ -157,6 +157,15 @@ vim.opt.cursorline = true
 -- Minimal number of screen lines to keep above and below the cursor.
 vim.opt.scrolloff = 10
 
+-- Enable 24-bit RGB colors in the terminal
+vim.opt.termguicolors = true
+
+-- vim.opt.guicursor = {
+--   'n-v-c:block', -- Normal, Visual, Command mode: block cursor
+--   'i-ci-ve:block-blinkon1000', -- Insert, Command-line, Visual-enter mode: vertical bar cursor with blinking
+--   'r-cr:hor20', -- Replace, Command-line mode: horizontal bar cursor
+--   'o:hor50-blinkon1000', -- Operator-pending mode: horizontal bar cursor with blinking
+-- }
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
 
