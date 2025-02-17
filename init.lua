@@ -695,6 +695,8 @@ require('lazy').setup({
         },
       }
 
+      -- install gleam setup
+      require('lspconfig').gleam.setup {}
       -- Ensure the servers and tools above are installed
       --  To check the current status of installed tools and/or manually install
       --  other tools, you can run
@@ -774,6 +776,7 @@ require('lazy').setup({
         glsl = { 'glsl_analyzer', stop_after_first = true },
         c = { 'clang-format', stop_after_first = true },
         cpp = { 'clang-format', stop_after_first = true },
+        elm = { 'elm-format', stop_after_first = true },
       },
     },
   },
