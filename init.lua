@@ -693,6 +693,12 @@ require('lazy').setup({
         glsl_analyzer = {
           filetypes = { 'glsl', 'vert', 'tesc', 'tese', 'frag', 'geom', 'comp', 'vs', 'fs' },
         },
+        ['emmet-language-server'] = {},
+        ['html-lsp'] = {},
+        htmlhint = {},
+        biome = {},
+        ['css-lsp'] = {},
+        ['css-variables-language-server'] = {},
       }
 
       -- install gleam setup
