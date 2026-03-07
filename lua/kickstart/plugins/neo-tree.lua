@@ -24,6 +24,15 @@ return {
           ['\\'] = 'close_window',
         },
       },
+      filtered_items = {
+        visible = true,        -- Show hidden files
+        hide_dotfiles = false, -- Don't hide dotfiles
+        hide_gitignored = false,
+        hide_by_name = {
+          -- Add any additional files you want to hide explicitly
+        },
+        never_show = {},
+      },
     },
   },
 }

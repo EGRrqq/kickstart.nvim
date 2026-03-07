@@ -5,4 +5,7 @@
 
 ---@module 'lazy'
 ---@type LazySpec
-return {}
+return {
+	-- vim motion study
+	'ThePrimeagen/vim-be-good',
+}
