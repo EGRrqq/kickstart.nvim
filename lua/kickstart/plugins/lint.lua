@@ -9,6 +9,7 @@ return {
       local lint = require 'lint'
       lint.linters_by_ft = {
         markdown = { 'rumdl' },
+
         javascript = { "biomejs" },
         typescript = { "biomejs" },
         javascriptreact = { "biomejs" },
@@ -16,6 +17,9 @@ return {
         css = { "biomejs" },
         html = { "biomejs" },
         graphql = { "biomejs" },
+
+        c = { 'cpplint' },
+        cpp = { 'cpplint' },
       }
 
       -- To allow other plugins to add linters to require('lint').linters_by_ft,

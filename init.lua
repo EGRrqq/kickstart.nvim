@@ -643,7 +643,7 @@ require('lazy').setup({
       ---@type table<string, vim.lsp.Config>
       local servers = {
         gopls = {},
-        delve = {},
+        -- delve = {},
 
         pyright = {},
         isort = {},
@@ -652,6 +652,7 @@ require('lazy').setup({
         -- rust_analyzer = {},
 
         clangd = {},
+        cpplint = {},
         ['clang-format'] = {},
         glsl_analyzer = {
           filetypes = { 'glsl', 'vert', 'tesc', 'tese', 'frag', 'geom', 'comp', 'vs', 'fs' },
@@ -740,7 +741,7 @@ require('lazy').setup({
         -- Disable "format_on_save lsp_fallback" for languages that don't
         -- have a well standardized coding style. You can add additional
         -- languages here or re-enable it for the disabled ones.
-        local disable_filetypes = { c = true, cpp = true }
+        local disable_filetypes = {}
         if disable_filetypes[vim.bo[bufnr].filetype] then
           return nil
         else
@@ -769,8 +770,8 @@ require('lazy').setup({
         graphql = { "biome-check", stop_after_first = true },
 
         glsl = { 'glsl_analyzer', stop_after_first = true },
-        c = { 'clang-format', stop_after_first = true },
-        cpp = { 'clang-format', stop_after_first = true },
+        c = { 'clang-format' },
+        cpp = { 'clang-format' },
         elm = { 'elm-format', stop_after_first = true },
       },
     },
@@ -952,7 +953,8 @@ require('lazy').setup({
     branch = 'main',
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter-intro`
     config = function()
-      local parsers = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim',
+      local parsers = { 'bash', 'c', 'cpp', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query',
+        'vim',
         'vimdoc' }
       require('nvim-treesitter').install(parsers)
       vim.api.nvim_create_autocmd('FileType', {
