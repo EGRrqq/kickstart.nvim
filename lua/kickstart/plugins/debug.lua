@@ -13,13 +13,12 @@ return {
   'mfussenegger/nvim-dap',
   -- NOTE: And you can specify dependencies as well
   dependencies = {
-    -- Show inline values
-    'theHamsta/nvim-dap-virtual-text',
-
     -- Creates a beautiful dap UI
     'igorlfs/nvim-dap-view',
     -- Disassembly view for dap UI
     'Jorenar/nvim-dap-disasm',
+    -- Show inline values
+    'theHamsta/nvim-dap-virtual-text',
 
     -- Installs the debug adapters for you
     'mason-org/mason.nvim',
@@ -73,6 +72,19 @@ return {
     { '<leader>dje', function() require('dap-view').jump_to_view 'exceptions' end, desc = 'Dap-View: Jump to Exceptions' },
     { '<leader>djt', function() require('dap-view').jump_to_view 'threads' end, desc = 'Dap-View: Jump to Threads' },
     { '<leader>djc', function() require('dap-view').jump_to_view 'console' end, desc = 'Dap-View: Jump to Console' },
+    { '<leader>djd', function() require('dap-view').jump_to_view 'disassembly' end, desc = 'Dap-View: Jump to disassembly' },
+
+    -- Show specific views
+    { '<leader>dsr', function() require('dap-view').show_view 'repl' end, desc = 'Dap-View: Show REPL' },
+    { '<leader>dss', function() require('dap-view').show_view 'scopes' end, desc = 'Dap-View: Show Scopes' },
+    { '<leader>dsS', function() require('dap-view').show_view 'stack' end, desc = 'Dap-View: Show Stack' },
+    { '<leader>dsb', function() require('dap-view').show_view 'breakpoints' end, desc = 'Dap-View: Show Breakpoints' },
+    { '<leader>dsw', function() require('dap-view').show_view 'watches' end, desc = 'Dap-View: Show Watches' },
+    { '<leader>dse', function() require('dap-view').show_view 'exceptions' end, desc = 'Dap-View: Show Exceptions' },
+    { '<leader>dst', function() require('dap-view').show_view 'threads' end, desc = 'Dap-View: Show Threads' },
+    { '<leader>dsc', function() require('dap-view').show_view 'console' end, desc = 'Dap-View: Show Console' },
+    { '<leader>dsd', function() require('dap-view').show_view 'disassembly' end, desc = 'Dap-View: Show disassembly' },
+    { '<leader>dsr', function() require('dap-view').show_view 'repl' end, desc = 'Dap-View: Show REPL' },
 
     -- Navigate between views
     { '<leader>d[', function() require('dap-view').navigate { count = -1, wrap = true } end, desc = 'Dap-View: Previous view' },
@@ -114,14 +126,7 @@ return {
 
     require('dap-view').setup {
       winbar = {
-        show = true,
-        -- You can add a "console" section to merge the terminal with the other views
-        sections = { 'watches', 'scopes', 'exceptions', 'breakpoints', 'threads', 'repl', 'disassembly', 'sessions', 'console' },
-        -- Must be one of the sections declared above
-        default_section = 'watches',
-        -- Append hints with keymaps within the labels
-        show_keymap_hints = true,
-        -- Configure each section individually
+        sections = { 'disassembly', 'watches', 'scopes', 'exceptions', 'breakpoints', 'threads', 'repl', 'console', 'sessions' },
         base_sections = {
           -- Labels can be set dynamically with functions
           -- Each function receives the window's width and the current section as arguments
@@ -134,35 +139,14 @@ return {
           sessions = { label = ' ', keymap = 'K' }, -- Sessions
           console = { label = ' ', keymap = 'C' }, -- Console
         },
-        -- Add your own sections
-        custom_sections = {},
         controls = {
           enabled = true,
-          position = 'right',
-          buttons = {
-            'play',
-            'step_into',
-            'step_over',
-            'step_out',
-            'step_back',
-            'run_last',
-            'terminate',
-            'disconnect',
-          },
-          custom_buttons = {},
         },
       },
       windows = {
-        size = 0.25,
-        position = 'below',
         terminal = {
-          size = 0.5,
-          position = 'left',
-          -- List of debug adapters for which the terminal should be ALWAYS hidden
           -- Use the actual names for the adapters you want to hide
-          hide = {
-            'delve', -- `delve` is known to not use the terminal.
-          },
+          hide = { 'delve' }, -- `delve` is known to not use the terminal.
         },
         anchor = function()
           -- Anchor to the first terminal window found in the current tab
@@ -175,72 +159,6 @@ return {
           end
         end,
       },
-      icons = {
-        collapsed = '󰅂 ',
-        disabled = '',
-        disconnect = '',
-        enabled = '',
-        expanded = '󰅀 ',
-        filter = '󰈲',
-        negate = ' ',
-        pause = '',
-        play = '',
-        run_last = '',
-        step_back = '',
-        step_into = '',
-        step_out = '',
-        step_over = '',
-        terminate = '',
-      },
-      help = {
-        border = nil,
-      },
-      render = {
-        -- Optionally a function that takes two `dap.Variable`'s as arguments
-        -- and is forwarded to a `table.sort` when rendering variables in the scopes view
-        sort_variables = nil,
-        -- Full control of how frames are rendered, see the "Custom Formatting" page
-        threads = {
-          -- Choose which items to display and how
-          format = function(name, lnum, path)
-            return {
-              { part = name, separator = ' ' },
-              { part = path, hl = 'FileName', separator = ':' },
-              { part = lnum, hl = 'LineNumber' },
-            }
-          end,
-          -- Align columns
-          align = false,
-        },
-        -- Full control of how breakpoints are rendered, see the "Custom Formatting" page
-        breakpoints = {
-          -- Choose which items to display and how
-          format = function(line, lnum, path)
-            return {
-              { part = path, hl = 'FileName' },
-              { part = lnum, hl = 'LineNumber' },
-              { part = line, hl = true },
-            }
-          end,
-          -- Align columns
-          align = false,
-        },
-      },
-      -- Controls how to jump when selecting a breakpoint or navigating the stack
-      -- Comma separated list, like the built-in 'switchbuf'. See :help 'switchbuf'
-      -- Only a subset of the options is available: newtab, useopen, usetab and uselast
-      -- Can also be a function that takes the current winnr and the destination bufnr
-      -- If a function, should return the winnr of the destination window
-      switchbuf = 'usetab,uselast',
-      -- Auto open when a session is started and auto close when all sessions finish
-      -- Alternatively, can be a string:
-      -- - "keep_terminal": as above, but keeps the terminal when the session finishes
-      -- - "open_term": open the terminal when starting a new session, nothing else
-      auto_toggle = false,
-      -- Reopen dapview when switching to a different tab
-      -- Can also be a function to dynamically choose when to follow, by returning a boolean
-      -- If a function, receives the name of the adapter for the current session as an argument
-      follow_tab = false,
     }
 
     require('dap-disasm').setup {
@@ -250,7 +168,7 @@ return {
       -- If registered, pass section configuration to nvim-dap-view
       dapview = {
         keymap = 'D',
-        label = '󰒓 ', -- Disassembly
+        label = '󰒓 ',
       },
 
       -- The sign to use for instruction the exectution is stopped at
