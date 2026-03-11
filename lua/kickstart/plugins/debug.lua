@@ -26,17 +26,8 @@ return {
 
     -- Add your own debuggers here
     'leoluz/nvim-dap-go',
-    'SGauvin/ctest-telescope.nvim',
+    -- 'SGauvin/ctest-telescope.nvim',
   },
-  -- keys = {
-  --   -- Basic debugging keymaps, feel free to change to your liking!
-  --   { '<F5>', function() require('dap').continue() end, desc = 'Debug: Start/Continue' },
-  --   { '<F1>', function() require('dap').step_into() end, desc = 'Debug: Step Into' },
-  --   { '<F2>', function() require('dap').step_over() end, desc = 'Debug: Step Over' },
-  --   { '<F3>', function() require('dap').step_out() end, desc = 'Debug: Step Out' },
-  --   { '<leader>b', function() require('dap').toggle_breakpoint() end, desc = 'Debug: Toggle Breakpoint' },
-  --   { '<leader>B', function() require('dap').set_breakpoint(vim.fn.input 'Breakpoint condition: ') end, desc = 'Debug: Set Breakpoint' },
-  -- },
   keys = {
     -- Basic debugging keymaps
     { '<F5>', function() require('dap').continue() end, desc = 'Debug: Start/Continue' },
@@ -95,7 +86,7 @@ return {
     { '<leader>dN', function() require('dap-view').navigate { count = -1, wrap = true, type = 'sessions' } end, desc = 'Dap-View: Previous session' },
   },
   config = function()
-    -- local dap = require 'dap'
+    local dap = require 'dap'
 
     require('mason-nvim-dap').setup {
       -- Makes a best effort to setup the various debuggers with
@@ -232,23 +223,60 @@ return {
       },
     }
 
-    -- Note: if you are using Lazy.nvim, pass these
-    -- arguments to `opts` instead of manually calling `setup`
-    require('ctest-telescope').setup {
-      -- Path to the ctest executable
-      ctest_path = 'ctest',
+    -- Setup codelldb adapter (installed via mason)
+    dap.adapters.codelldb = {
+      type = 'server',
+      port = '${port}',
+      executable = {
+        command = 'codelldb', -- assumes codelldb is in PATH (install via mason)
+        args = { '--port', '${port}' },
+      },
+    }
 
-      -- Extra arguments to pass to ctest
-      -- For example, to add '-C Debug', you should set this variable to {"-C", "Debug"}
-      extra_ctest_args = {},
-
-      -- Folder where your compiled executables will be found
-      build_folder = 'build',
-
-      -- Configuration you would pass to require("dap").configurations.cpp
-      dap_config = {
+    dap.configurations.cpp = {
+      -- Your existing "launch a.out" style
+      {
+        name = 'Launch',
         type = 'codelldb',
         request = 'launch',
+        program = function()
+          -- You can either hardcode "a.out" or prompt
+          return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/a.out', 'file')
+        end,
+        cwd = '${workspaceFolder}',
+        stopAtEntry = true,
+        setupCommands = {
+          {
+            text = '-enable-pretty-printing',
+            description = 'Enable pretty printing',
+            ignoreFailures = false,
+          },
+        },
+      },
+      -- A "compile and launch" option
+      {
+        name = 'Compile and Launch',
+        type = 'codelldb',
+        request = 'launch',
+        program = function()
+          -- 1. Compile the current file (or main file)
+          local current_file = vim.fn.expand '%:p'
+          local output = vim.fn.fnamemodify(current_file, ':r') .. '.out' -- e.g. file.c -> file.out
+          -- Or use a fixed name like "a.out"
+          output = 'dap.out'
+
+          -- Run the compile command (here using clang, adjust as needed)
+          local compile_cmd = string.format('clang -g %s -o %s', current_file, output)
+          local result = vim.fn.system(compile_cmd)
+          if vim.v.shell_error ~= 0 then
+            print('Compilation failed:\n' .. result)
+            return nil -- Abort debugging
+          end
+
+          -- Return the full path to the executable
+          return vim.fn.getcwd() .. '/' .. output
+        end,
+        cwd = '${workspaceFolder}',
         stopAtEntry = true,
         setupCommands = {
           {
@@ -259,5 +287,35 @@ return {
         },
       },
     }
+
+    dap.configurations.c = dap.configurations.cpp
+
+    -- Note: if you are using Lazy.nvim, pass these
+    -- arguments to `opts` instead of manually calling `setup`
+    -- require('ctest-telescope').setup {
+    --   -- Path to the ctest executable
+    --   ctest_path = 'ctest',
+    --
+    --   -- Extra arguments to pass to ctest
+    --   -- For example, to add '-C Debug', you should set this variable to {"-C", "Debug"}
+    --   extra_ctest_args = {},
+    --
+    --   -- Folder where your compiled executables will be found
+    --   build_folder = 'build',
+    --
+    --   -- Configuration you would pass to require("dap").configurations.cpp
+    --   dap_config = {
+    --     type = 'codelldb',
+    --     request = 'launch',
+    --     stopAtEntry = true,
+    --     setupCommands = {
+    --       {
+    --         text = '-enable-pretty-printing',
+    --         description = 'Enable pretty printing',
+    --         ignoreFailures = false,
+    --       },
+    --     },
+    --   },
+    -- }
   end,
 }
