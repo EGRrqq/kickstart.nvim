@@ -236,8 +236,8 @@ vim.keymap.set('n', 'n', 'nzzzv', { desc = 'Next search result and center cursor
 vim.keymap.set('n', 'N', 'Nzzzv', { desc = 'Previous search result and center cursor' })
 
 -- Move the line up/down
-vim.keymap.set('v', 'J', ":m '>+1<CR>gv=gv", { desc = 'Move selected line down' })
-vim.keymap.set('v', 'K', ":m '<-2<CR>gv=gv", { desc = 'Move selected line up' })
+-- vim.keymap.set('v', 'J', ":m '>+1<CR>gv=gv", { desc = 'Move selected line down' })
+-- vim.keymap.set('v', 'K', ":m '<-2<CR>gv=gv", { desc = 'Move selected line up' })
 vim.keymap.set('v', '<A-Down>', ":m '>+1<CR>gv=gv", { desc = 'Move selected line down (Alt)' })
 vim.keymap.set('v', '<A-Up>', ":m '<-2<CR>gv=gv", { desc = 'Move selected line up (Alt)' })
 
@@ -638,6 +638,17 @@ require('lazy').setup({
       --  See `:help lsp-config` for information about keys and how to configure
       ---@type table<string, vim.lsp.Config>
       local servers = {
+        tsgo = {},
+        denols = {},
+        emmet_language_server = {},
+        biome = {},
+        ['css-lsp'] = {},
+        ['css-variables-language-server'] = {},
+        csskit = {},
+        ['html-lsp'] = {},
+        ['htmx-lsp'] = {},
+        ['wc-language-server'] = {},
+
         gopls = {},
         -- delve = {},
 
@@ -647,19 +658,10 @@ require('lazy').setup({
 
         -- rust_analyzer = {},
 
-        clangd = {},
-        cpplint = {},
-        ['clang-format'] = {},
         glsl_analyzer = {
           filetypes = { 'glsl', 'vert', 'tesc', 'tese', 'frag', 'geom', 'comp', 'vs', 'fs' },
         },
         ['elm-format'] = {},
-
-        -- deno = {},
-        tsgo = {},
-        emmet_language_server = {},
-        biome = {},
-        -- ['css-variables-language-server'] = {},
 
         marksman = {},
         rumdl = {},
@@ -710,6 +712,12 @@ require('lazy').setup({
 
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
+      vim.lsp.config('clangd', {
+        cmd = { 'clangd' },
+        -- filetypes = { 'c', 'cpp', 'objc', 'objcpp' },
+      })
+      vim.lsp.enable 'clangd'
+
       for name, server in pairs(servers) do
         vim.lsp.config(name, server)
         vim.lsp.enable(name)
@@ -753,17 +761,25 @@ require('lazy').setup({
         python = { 'isort', 'black' },
         --
         -- You can use 'stop_after_first' to run the first available formatter from the list
-        -- javascript = { "prettierd", "prettier", stop_after_first = true },
-        javascript = { 'biome-check', stop_after_first = true },
-        javascriptreact = { 'biome-check', stop_after_first = true },
-        typescript = { 'biome-check', stop_after_first = true },
-        typescriptreact = { 'biome-check', stop_after_first = true },
-        json = { 'biome-check', stop_after_first = true },
+        javascript = { 'deno_fmt', stop_after_first = true },
+        javascriptreact = { 'deno_fmt', stop_after_first = true },
+        typescript = { 'deno_fmt', stop_after_first = true },
+        typescriptreact = { 'deno_fmt', stop_after_first = true },
+        json = { 'deno_fmt', stop_after_first = true },
+        --
+        -- javascript = { 'biome-check', stop_after_first = true },
+        -- javascriptreact = { 'biome-check', stop_after_first = true },
+        -- typescript = { 'biome-check', stop_after_first = true },
+        -- typescriptreact = { 'biome-check', stop_after_first = true },
+        -- json = { 'biome-check', stop_after_first = true },
         markdown = { 'rumdl', stop_after_first = true },
-        html = { 'biome-check', stop_after_first = true },
-        css = { 'biome-check', stop_after_first = true },
+
+        yaml = { 'oxfmt', stop_after_first = true },
+        html = { 'oxfmt', stop_after_first = true },
+        css = { 'oxfmt', stop_after_first = true },
+        scss = { 'oxfmt', stop_after_first = true },
         sql = { 'biome-check', stop_after_first = true },
-        graphql = { 'biome-check', stop_after_first = true },
+        graphql = { 'oxfmt', stop_after_first = true },
 
         glsl = { 'glsl_analyzer', stop_after_first = true },
         c = { 'clang-format' },
@@ -869,27 +885,24 @@ require('lazy').setup({
     -- change the command in the config to whatever the name of that colorscheme is.
     --
     -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
-    'catppuccin/nvim',
+    'navarasu/onedark.nvim',
     priority = 1000, -- Make sure to load this before all the other start plugins.
     config = function()
       ---@diagnostic disable-next-line: missing-fields
-      -- require('catppuccin').setup({
-      --   custom_highlights = function(colors)
-      --     return {
-      --       Visual = { bg = colors.rosewater, fg = colors.base }, -- adjust as you like
-      --     }
-      --   end,
-      -- })
+      require('onedark').setup {
+        style = 'light',
+      }
+      require('onedark').load()
 
       -- Load the colorscheme here.
       -- Like many other themes, this one has different styles, and you could load
       -- any other, such as: catppuccin-latte, catppuccin-frappe, catppuccin-macchiato, catppuccin-mocha.
       vim.opt.background = 'light'
-      vim.cmd.colorscheme 'catppuccin-latte'
+      vim.cmd.colorscheme 'onedark'
 
       -- Use a catppuccin palette color that blends into the background
-      local catppuccin = require('catppuccin.palettes').get_palette 'latte'
-      vim.api.nvim_set_hl(0, 'EndOfBuffer', { fg = catppuccin.surface2 })
+      -- local catppuccin = require('catppuccin.palettes').get_palette 'latte'
+      -- vim.api.nvim_set_hl(0, 'EndOfBuffer', { fg = catppuccin.surface2 })
     end,
   },
 
@@ -955,6 +968,7 @@ require('lazy').setup({
         'go',
         'javascript',
         'typescript',
+        'css',
         'html',
         'zig',
         'lua',

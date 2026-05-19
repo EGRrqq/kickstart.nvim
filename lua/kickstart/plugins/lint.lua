@@ -10,13 +10,15 @@ return {
       lint.linters_by_ft = {
         markdown = { 'rumdl' },
 
-        javascript = { "biomejs" },
-        typescript = { "biomejs" },
-        javascriptreact = { "biomejs" },
-        typescriptreact = { "biomejs" },
-        css = { "biomejs" },
-        html = { "biomejs" },
-        graphql = { "biomejs" },
+        javascript = { 'deno', 'biomejs' },
+        typescript = { 'deno', 'biomejs' },
+        javascriptreact = { 'deno', 'biomejs' },
+        typescriptreact = { 'deno', 'biomejs' },
+
+        css = { 'biomejs' },
+        html = { 'markuplint' },
+        graphql = { 'biomejs' },
+        json = { 'biomejs' },
 
         c = { 'cpplint' },
         cpp = { 'cpplint' },
