@@ -240,6 +240,8 @@ vim.keymap.set('n', 'N', 'Nzzzv', { desc = 'Previous search result and center cu
 -- vim.keymap.set('v', 'K', ":m '<-2<CR>gv=gv", { desc = 'Move selected line up' })
 vim.keymap.set('v', '<A-Down>', ":m '>+1<CR>gv=gv", { desc = 'Move selected line down (Alt)' })
 vim.keymap.set('v', '<A-Up>', ":m '<-2<CR>gv=gv", { desc = 'Move selected line up (Alt)' })
+vim.keymap.set('n', '<A-Down>', ':move .+1<CR>==', { desc = 'Move current line down (Alt)', silent = true })
+vim.keymap.set('n', '<A-Up>', ':move .-2<CR>==', { desc = 'Move current line up (Alt)', silent = true })
 
 -- Delete without buffer
 vim.keymap.set('x', '<leader>p', [["_dP]], { desc = 'Paste without affecting the clipboard' })
@@ -842,7 +844,7 @@ require('lazy').setup({
         -- <c-k>: Toggle signature help
         --
         -- See :h blink-cmp-config-keymap for defining your own keymap
-        preset = 'default',
+        preset = 'enter',
 
         -- For more advanced Luasnip keymaps (e.g. selecting choice nodes, expansion) see:
         --    https://github.com/L3MON4D3/LuaSnip?tab=readme-ov-file#keymaps
@@ -935,6 +937,10 @@ require('lazy').setup({
       -- - sr)'  - [S]urround [R]eplace [)] [']
       require('mini.surround').setup()
 
+      require('mini.comment').setup {
+        version = false,
+      }
+
       -- Simple and easy statusline.
       --  You could remove this setup call if you don't like it,
       --  and try some other statusline plugin
@@ -968,6 +974,7 @@ require('lazy').setup({
         'go',
         'javascript',
         'typescript',
+        'jsdoc',
         'css',
         'html',
         'zig',
