@@ -181,25 +181,6 @@ vim.keymap.set('n', '<space>sx', '<cmd>source %<CR>')
 vim.keymap.set('n', '<space>se', ':.lua<CR>')
 vim.keymap.set('v', '<space>se', ':lua<CR>')
 
--- Insert JSDoc comment starter and place cursor after @ (staying in insert mode)
--- Helper to create JSDoc comment mappings
-local function map_jsdoc(key, insert_cmd, comment_string, left_shift)
-  vim.keymap.set('n', key, function()
-    local ft = vim.bo.filetype
-    if ft == 'javascript' or ft == 'javascriptreact' or ft == 'typescript' or ft == 'typescriptreact' then
-      local command = string.format("%s'%s<ESC>%shi'", insert_cmd, comment_string, left_shift)
-      -- vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(insert_cmd .. '/** @ */<Esc>2hi', true, false, true), 'n', false)
-      vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(command, true, false, true), 'n', false)
-    else
-      vim.notify(key .. ': only works in JavaScript/TypeScript files', vim.log.levels.WARN)
-    end
-  end, { desc = 'Insert JSDoc comment starter' })
-end
-
--- map_jsdoc('gi', 'i') -- insert at cursor
--- map_jsdoc('go', 'o') -- new line below
-map_jsdoc('gO', 'O', '/** @ */', 2) -- new line above
-
 -- Generalized helper for inserting JSDoc-like comments and positioning the cursor
 local function map_jsdoc_template(key, insert_cmd, template, left_shifts)
   vim.keymap.set('n', key, function()
