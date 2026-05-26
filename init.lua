@@ -183,20 +183,44 @@ vim.keymap.set('v', '<space>se', ':lua<CR>')
 
 -- Insert JSDoc comment starter and place cursor after @ (staying in insert mode)
 -- Helper to create JSDoc comment mappings
-local function map_jsdoc(key, insert_cmd)
+local function map_jsdoc(key, insert_cmd, comment_string, left_shift)
   vim.keymap.set('n', key, function()
     local ft = vim.bo.filetype
     if ft == 'javascript' or ft == 'javascriptreact' or ft == 'typescript' or ft == 'typescriptreact' then
-      vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(insert_cmd .. '/** @ */<Esc>2hi', true, false, true), 'n', false)
+      local command = string.format("%s'%s<ESC>%shi'", insert_cmd, comment_string, left_shift)
+      -- vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(insert_cmd .. '/** @ */<Esc>2hi', true, false, true), 'n', false)
+      vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(command, true, false, true), 'n', false)
     else
       vim.notify(key .. ': only works in JavaScript/TypeScript files', vim.log.levels.WARN)
     end
   end, { desc = 'Insert JSDoc comment starter' })
 end
 
-map_jsdoc('gi', 'i') -- insert at cursor
-map_jsdoc('go', 'o') -- new line below
-map_jsdoc('gO', 'O') -- new line above
+-- map_jsdoc('gi', 'i') -- insert at cursor
+-- map_jsdoc('go', 'o') -- new line below
+map_jsdoc('gO', 'O', '/** @ */', 2) -- new line above
+
+-- Generalized helper for inserting JSDoc-like comments and positioning the cursor
+local function map_jsdoc_template(key, insert_cmd, template, left_shifts)
+  vim.keymap.set('n', key, function()
+    local ft = vim.bo.filetype
+    if ft == 'javascript' or ft == 'javascriptreact' or ft == 'typescript' or ft == 'typescriptreact' then
+      vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(insert_cmd .. template .. '<Esc>' .. left_shifts .. 'hi', true, false, true), 'n', false)
+    else
+      vim.notify(key .. ': only works in JavaScript/TypeScript files', vim.log.levels.WARN)
+    end
+  end, { desc = 'Insert JSDoc comment' })
+end
+
+-- Basic `@` comment (insert at cursor, below, above)
+map_jsdoc_template('gs', 'i', '/** @ */', 2)
+map_jsdoc_template('go', 'o', '/** @ */', 2)
+map_jsdoc_template('gO', 'O', '/** @ */', 2)
+
+-- Type annotation comment: `/** @type {} */` with cursor inside the braces
+map_jsdoc_template('gti', 'i', '/** @type {} */', 3)
+map_jsdoc_template('gto', 'o', '/** @type {} */', 3)
+map_jsdoc_template('gtO', 'O', '/** @type {} */', 3)
 
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
