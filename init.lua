@@ -194,7 +194,7 @@ local function map_jsdoc_template(key, insert_cmd, template, left_shifts)
 end
 
 -- Basic `@` comment (insert at cursor, below, above)
-map_jsdoc_template('gs', 'i', '/** @ */', 2)
+map_jsdoc_template('gi', 'i', '/** @ */', 2)
 map_jsdoc_template('go', 'o', '/** @ */', 2)
 map_jsdoc_template('gO', 'O', '/** @ */', 2)
 
