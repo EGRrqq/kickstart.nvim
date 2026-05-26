@@ -170,6 +170,34 @@ vim.o.foldlevelstart = 99
 -- See `:help 'confirm'`
 vim.o.confirm = true
 
+-- Enable autoread and set up checking triggers
+vim.o.autoread = true
+vim.api.nvim_create_autocmd({ 'FocusGained', 'BufEnter', 'CursorHold', 'CursorHoldI' }, {
+  command = "if mode() != 'c' | checktime | endif",
+  pattern = '*',
+})
+
+vim.keymap.set('n', '<space>sx', '<cmd>source %<CR>')
+vim.keymap.set('n', '<space>se', ':.lua<CR>')
+vim.keymap.set('v', '<space>se', ':lua<CR>')
+
+-- Insert JSDoc comment starter and place cursor after @ (staying in insert mode)
+-- Helper to create JSDoc comment mappings
+local function map_jsdoc(key, insert_cmd)
+  vim.keymap.set('n', key, function()
+    local ft = vim.bo.filetype
+    if ft == 'javascript' or ft == 'javascriptreact' or ft == 'typescript' or ft == 'typescriptreact' then
+      vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(insert_cmd .. '/** @ */<Esc>2hi', true, false, true), 'n', false)
+    else
+      vim.notify(key .. ': only works in JavaScript/TypeScript files', vim.log.levels.WARN)
+    end
+  end, { desc = 'Insert JSDoc comment starter' })
+end
+
+map_jsdoc('gi', 'i') -- insert at cursor
+map_jsdoc('go', 'o') -- new line below
+map_jsdoc('gO', 'O') -- new line above
+
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
 
@@ -475,7 +503,7 @@ require('lazy').setup({
 
           -- Fuzzy find all the symbols in your current document.
           -- Symbols are things like variables, functions, types, etc.
-          vim.keymap.set('n', 'gO', builtin.lsp_document_symbols, { buffer = buf, desc = 'Open Document Symbols' })
+          vim.keymap.set('n', 'gD', builtin.lsp_document_symbols, { buffer = buf, desc = 'Open Document Symbols' })
 
           -- Fuzzy find all the symbols in your current workspace.
           -- Similar to document symbols, except searches over your entire project.
@@ -669,9 +697,13 @@ require('lazy').setup({
         rumdl = {},
 
         stylua = {}, -- Used to format Lua code
+        luau_lsp = {
+          filetypes = { 'luau' },
+        },
 
         -- Special Lua Config, as recommended by neovim help docs
         lua_ls = {
+          filetypes = { 'lua' },
           on_init = function(client)
             if client.workspace_folders then
               local path = client.workspace_folders[1].name
@@ -758,6 +790,7 @@ require('lazy').setup({
         end
       end,
       formatters_by_ft = {
+        luau = { 'stylua' },
         lua = { 'stylua' },
         -- Conform can also run multiple formatters sequentially
         python = { 'isort', 'black' },
@@ -791,11 +824,23 @@ require('lazy').setup({
     },
   },
 
+  -- add blink.compat
+  {
+    'saghen/blink.compat',
+    -- use v2.* for blink.cmp v1.*
+    version = '2.*',
+    -- lazy.nvim will automatically load the plugin when it's required by blink.cmp
+    lazy = true,
+    -- make sure to set opts so that lazy.nvim calls blink.compat's setup
+    opts = {},
+  },
   { -- Autocompletion
     'saghen/blink.cmp',
     event = 'VimEnter',
     version = '1.*',
     dependencies = {
+      -- add source
+      { 'dmitmel/cmp-digraphs' },
       -- Snippet Engine
       {
         'L3MON4D3/LuaSnip',
@@ -863,7 +908,33 @@ require('lazy').setup({
       },
 
       sources = {
-        default = { 'lsp', 'path', 'snippets' },
+        -- remember to enable your providers here
+        default = { 'lsp', 'path', 'snippets', 'buffer', 'digraphs' },
+        providers = {
+          -- create provider
+          digraphs = {
+            -- IMPORTANT: use the same name as you would for nvim-cmp
+            name = 'digraphs',
+            module = 'blink.compat.source',
+
+            -- all blink.cmp source config options work as normal:
+            score_offset = -3,
+
+            -- this table is passed directly to the proxied completion source
+            -- as the `option` field in nvim-cmp's source config
+            --
+            -- this is NOT the same as the opts in a plugin's lazy.nvim spec
+            opts = {
+              -- this is an option from cmp-digraphs
+              cache_digraphs_on_start = true,
+
+              -- If you'd like to use a `name` that does not exactly match nvim-cmp,
+              -- set `cmp_name` to the name you would use for nvim-cmp, for instance:
+              -- cmp_name = "digraphs"
+              -- then, you can set the source's `name` to whatever you like.
+            },
+          },
+        },
       },
 
       snippets = { preset = 'luasnip' },
@@ -979,6 +1050,7 @@ require('lazy').setup({
         'html',
         'zig',
         'lua',
+        'luau',
         'luadoc',
         'markdown',
         'markdown_inline',

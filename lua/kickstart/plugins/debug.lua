@@ -26,9 +26,11 @@ return {
 
     -- Add your own debuggers here
     'leoluz/nvim-dap-go',
+    'jbyuki/one-small-step-for-vimkind',
     -- 'SGauvin/ctest-telescope.nvim',
   },
   keys = {
+    { '<leader>dl', function() require('osv').launch { port = 8086 } end, mode = 'n', noremap = true },
     -- Basic debugging keymaps
     { '<F5>', function() require('dap').continue() end, desc = 'Debug: Start/Continue' },
     { '<F1>', function() require('dap').step_into() end, desc = 'Debug: Step Into' },
@@ -104,7 +106,6 @@ return {
         'delve',
         'codelldb',
         'js-debug-adapter',
-        'firefox-debug-adapter',
       },
     }
 
@@ -292,6 +293,17 @@ return {
 
     dap.configurations.c = dap.configurations.cpp
 
+    -- setup for lua
+    dap.configurations.lua = {
+      {
+        type = 'nlua',
+        request = 'attach',
+        name = 'Attach to running Neovim instance',
+      },
+    }
+
+    dap.adapters.nlua = function(callback, config) callback { type = 'server', host = config.host or '127.0.0.1', port = config.port or 8086 } end
+
     -- Note: if you are using Lazy.nvim, pass these
     -- arguments to `opts` instead of manually calling `setup`
     -- require('ctest-telescope').setup {
@@ -320,50 +332,34 @@ return {
     --   },
     -- }
 
-    -- dap.adapters['pwa-node'] = {
-    --   type = 'server',
-    --   host = 'localhost',
-    --   port = '${port}',
-    --   executable = {
-    --     command = 'node',
-    --     -- 💀 Make sure to update this path to point to your installation
-    --     args = { '~/.local/share/nvim/mason/packages/js-debug-adapter/js-debug/src/dapDebugServer.js', '${port}' },
-    --   },
-    -- }
-    --
-    -- dap.configurations.typescript = {
-    --   {
-    --     type = 'pwa-node',
-    --     request = 'launch',
-    --     name = 'Launch file',
-    --     runtimeExecutable = 'deno',
-    --     runtimeArgs = {
-    --       'run',
-    --       '--inspect-wait',
-    --       '--allow-all',
-    --     },
-    --     program = '${file}',
-    --     cwd = '${workspaceFolder}',
-    --     attachSimplePort = 9229,
-    --   },
-    -- }
+    require('dap').adapters['pwa-node'] = {
+      type = 'server',
+      host = 'localhost',
+      port = '${port}',
+      executable = {
+        command = 'node',
+        -- 💀 Make sure to update this path to point to your installation
+        args = { '/home/egr/.local/share/nvim/mason/packages/js-debug-adapter/js-debug/src/dapDebugServer.js', '${port}' },
+      },
+    }
 
-  --   dap.adapters.firefox = {
-  --     type = 'executable',
-  --     command = 'node',
-  --     args = { os.getenv 'HOME' .. '/.local/share/nvim/mason/packages/firefox-debug-adapter/dist/adapter.bundle.js' },
-  --   }
-  --
-  --   dap.configurations.typescript = {
-  --     {
-  --       name = 'Debug with Firefox',
-  --       type = 'firefox',
-  --       request = 'launch',
-  --       reAttach = true,
-  --       url = 'http://localhost:3000',
-  --       webRoot = '${workspaceFolder}',
-  --       firefoxExecutable = '/usr/bin/firefox',
-  --     },
-  --   }
+    dap.configurations.typescript = {
+      {
+        type = 'pwa-node',
+        request = 'launch',
+        name = 'Launch file',
+        runtimeExecutable = 'deno',
+        runtimeArgs = {
+          'run',
+          '--inspect-wait',
+          '--allow-all',
+        },
+        program = '${file}',
+        cwd = '${workspaceFolder}',
+        attachSimplePort = 9229,
+      },
+    }
+
+    dap.configurations.javascript = dap.configurations.typescript
   end,
 }

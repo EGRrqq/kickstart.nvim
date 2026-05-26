@@ -7,6 +7,7 @@ return {
     event = { 'BufReadPre', 'BufNewFile' },
     config = function()
       local lint = require 'lint'
+
       lint.linters_by_ft = {
         markdown = { 'rumdl' },
 
@@ -22,6 +23,8 @@ return {
 
         c = { 'cpplint' },
         cpp = { 'cpplint' },
+
+        lua = { 'selene' },
       }
 
       -- To allow other plugins to add linters to require('lint').linters_by_ft,
