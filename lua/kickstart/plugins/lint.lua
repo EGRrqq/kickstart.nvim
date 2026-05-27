@@ -25,6 +25,8 @@ return {
         cpp = { 'cpplint' },
 
         lua = { 'selene' },
+
+        nix = { 'statix' },
       }
 
       -- To allow other plugins to add linters to require('lint').linters_by_ft,

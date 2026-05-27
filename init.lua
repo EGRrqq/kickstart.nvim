@@ -676,7 +676,9 @@ require('lazy').setup({
         tsgo = {},
         denols = {},
         emmet_language_server = {},
+        markuplint = {},
         biome = {},
+        oxfmt = {},
         ['css-lsp'] = {},
         ['css-variables-language-server'] = {},
         csskit = {},
@@ -701,6 +703,11 @@ require('lazy').setup({
         marksman = {},
         rumdl = {},
 
+        ['nil'] = {},
+        nixfmt = {},
+        statix = {},
+
+        selene = {},
         stylua = {}, -- Used to format Lua code
         luau_lsp = {
           filetypes = { 'luau' },
@@ -795,6 +802,8 @@ require('lazy').setup({
         end
       end,
       formatters_by_ft = {
+        nix = { 'nixfmt' },
+
         luau = { 'stylua' },
         lua = { 'stylua' },
         -- Conform can also run multiple formatters sequentially
