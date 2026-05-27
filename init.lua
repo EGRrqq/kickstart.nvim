@@ -170,39 +170,6 @@ vim.o.foldlevelstart = 99
 -- See `:help 'confirm'`
 vim.o.confirm = true
 
--- Enable autoread and set up checking triggers
-vim.o.autoread = true
-vim.api.nvim_create_autocmd({ 'FocusGained', 'BufEnter', 'CursorHold', 'CursorHoldI' }, {
-  command = "if mode() != 'c' | checktime | endif",
-  pattern = '*',
-})
-
-vim.keymap.set('n', '<space>sx', '<cmd>source %<CR>')
-vim.keymap.set('n', '<space>se', ':.lua<CR>')
-vim.keymap.set('v', '<space>se', ':lua<CR>')
-
--- Generalized helper for inserting JSDoc-like comments and positioning the cursor
-local function map_jsdoc_template(key, insert_cmd, template, left_shifts)
-  vim.keymap.set('n', key, function()
-    local ft = vim.bo.filetype
-    if ft == 'javascript' or ft == 'javascriptreact' or ft == 'typescript' or ft == 'typescriptreact' then
-      vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(insert_cmd .. template .. '<Esc>' .. left_shifts .. 'hi', true, false, true), 'n', false)
-    else
-      vim.notify(key .. ': only works in JavaScript/TypeScript files', vim.log.levels.WARN)
-    end
-  end, { desc = 'Insert JSDoc comment' })
-end
-
--- Basic `@` comment (insert at cursor, below, above)
-map_jsdoc_template('gi', 'i', '/** @ */', 2)
-map_jsdoc_template('go', 'o', '/** @ */', 2)
-map_jsdoc_template('gO', 'O', '/** @ */', 2)
-
--- Type annotation comment: `/** @type {} */` with cursor inside the braces
-map_jsdoc_template('gti', 'i', '/** @type {} */', 3)
-map_jsdoc_template('gto', 'o', '/** @type {} */', 3)
-map_jsdoc_template('gtO', 'O', '/** @type {} */', 3)
-
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
 
@@ -287,6 +254,39 @@ vim.api.nvim_create_user_command('W', 'w', { desc = 'Save the current file' })
 vim.api.nvim_create_user_command('Q', 'q', { desc = 'Quit the current buffer' })
 vim.api.nvim_create_user_command('Wq', 'wq', { desc = 'Save and quit the current buffer' })
 vim.api.nvim_create_user_command('WQ', 'wq', { desc = 'Save and quit the current buffer (uppercase)' })
+
+-- Enable autoread and set up checking triggers
+vim.o.autoread = true
+vim.api.nvim_create_autocmd({ 'FocusGained', 'BufEnter', 'CursorHold', 'CursorHoldI' }, {
+  command = "if mode() != 'c' | checktime | endif",
+  pattern = '*',
+})
+
+vim.keymap.set('n', '<space>sx', '<cmd>source %<CR>')
+vim.keymap.set('n', '<space>se', ':.lua<CR>')
+vim.keymap.set('v', '<space>se', ':lua<CR>')
+
+-- Generalized helper for inserting JSDoc-like comments and positioning the cursor
+local function map_jsdoc_template(key, insert_cmd, template, left_shifts)
+  vim.keymap.set('n', key, function()
+    local ft = vim.bo.filetype
+    if ft == 'javascript' or ft == 'javascriptreact' or ft == 'typescript' or ft == 'typescriptreact' then
+      vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(insert_cmd .. template .. '<Esc>' .. left_shifts .. 'hi', true, false, true), 'n', false)
+    else
+      vim.notify(key .. ': only works in JavaScript/TypeScript files', vim.log.levels.WARN)
+    end
+  end, { desc = 'Insert JSDoc comment' })
+end
+
+-- Basic `@` comment (insert at cursor, below, above)
+map_jsdoc_template('gi', 'i', '/** @ */', 2)
+map_jsdoc_template('go', 'o', '/** @ */', 2)
+map_jsdoc_template('gO', 'O', '/** @ */', 2)
+
+-- Type annotation comment: `/** @type {} */` with cursor inside the braces
+map_jsdoc_template('gti', 'i', '/** @type {} */', 3)
+map_jsdoc_template('gto', 'o', '/** @type {} */', 3)
+map_jsdoc_template('gtO', 'O', '/** @type {} */', 3)
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
