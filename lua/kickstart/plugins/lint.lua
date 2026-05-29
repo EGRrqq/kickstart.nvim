@@ -29,6 +29,13 @@ return {
         nix = { 'statix' },
       }
 
+      -- Toggle nvim-lint (buffer-local, default on)
+      vim.keymap.set('n', '<leader>tl', function()
+        vim.b.lint_enabled = not (vim.b.lint_enabled ~= false)
+        local msg = vim.b.lint_enabled and 'Linting enabled' or 'Linting disabled'
+        vim.notify(msg, vim.log.levels.INFO)
+      end, { desc = 'Toggle linting' })
+
       -- To allow other plugins to add linters to require('lint').linters_by_ft,
       -- instead set linters_by_ft like this:
       -- lint.linters_by_ft = lint.linters_by_ft or {}
@@ -70,7 +77,7 @@ return {
           -- Only run the linter in buffers that you can modify in order to
           -- avoid superfluous noise, notably within the handy LSP pop-ups that
           -- describe the hovered symbol using Markdown.
-          if vim.bo.modifiable then lint.try_lint() end
+          if vim.bo.modifiable and vim.b.lint_enabled ~= false then lint.try_lint() end
         end,
       })
     end,

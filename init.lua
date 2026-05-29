@@ -572,9 +572,55 @@ require('lazy').setup({
       { 'j-hui/fidget.nvim', opts = {} },
 
       -- Allows extra capabilities provided by blink.cmp
-      'saghen/blink.cmp',
+      {
+        'saghen/blink.cmp',
+        opts = {
+          enabled = function() return vim.b.completion ~= false end,
+        },
+        config = function(_, opts) require('blink.cmp').setup(opts) end,
+      },
     },
     config = function()
+      -- Toggle blink.cmp autocompletion (buffer-local, default on)
+      vim.keymap.set('n', '<leader>tc', function()
+        vim.b.completion = not (vim.b.completion ~= false)
+        if vim.b.completion then
+          vim.notify('Autocompletion enabled', vim.log.levels.INFO)
+        else
+          vim.notify('Autocompletion disabled', vim.log.levels.INFO)
+          require('blink.cmp').hide()
+        end
+      end, { desc = 'Toggle autocompletion' })
+
+      -- Toggle diagnostic display (virtual text, signs, underlines) – buffer-local
+      vim.keymap.set('n', '<leader>td', function()
+        local bufnr = vim.api.nvim_get_current_buf()
+        local new_state = not vim.diagnostic.is_enabled { bufnr = bufnr }
+        vim.diagnostic.enable(new_state, { bufnr = bufnr })
+        local msg = new_state and 'Diagnostics shown' or 'Diagnostics hidden'
+        vim.notify(msg, vim.log.levels.INFO)
+      end, { desc = 'Toggle diagnostic display' })
+
+      -- Master toggle: enable/disable everything (completion, linting, diagnostics)
+      vim.keymap.set('n', '<leader>ta', function()
+        local bufnr = vim.api.nvim_get_current_buf()
+        vim.b.learning_mode = not vim.b.learning_mode
+
+        if vim.b.learning_mode then
+          -- Turn everything OFF
+          vim.b.completion = false
+          vim.b.lint_enabled = false
+          vim.diagnostic.enable(false, { bufnr = bufnr })
+          vim.notify('Learning mode ON (completion, linting, diagnostics hidden)', vim.log.levels.INFO)
+        else
+          -- Turn everything ON
+          vim.b.completion = true
+          vim.b.lint_enabled = true
+          vim.diagnostic.enable(true, { bufnr = bufnr })
+          vim.notify('Learning mode OFF (everything enabled)', vim.log.levels.INFO)
+        end
+      end, { desc = 'Toggle learning mode (completion + lint + diagnostics)' })
+
       -- Brief aside: **What is LSP?**
       --
       -- LSP is an initialism you've probably heard, but might not understand what it is.
@@ -986,6 +1032,39 @@ require('lazy').setup({
       -- any other, such as: catppuccin-latte, catppuccin-frappe, catppuccin-macchiato, catppuccin-mocha.
       vim.opt.background = 'light'
       vim.cmd.colorscheme 'onedark'
+
+      if vim.o.background == 'light' then
+        -- Force darker comment color globally, for treesitter and JSDoc-like highlights; reapply after colorscheme and on buffer events
+        local function set_darker_comments()
+          local fg = '#1C1E8A' -- adjust hex to taste
+          vim.api.nvim_set_hl(0, 'Comment', { fg = fg, italic = true })
+          for _, hl in ipairs {
+            'TSComment',
+            'TSComment.documentation',
+            'TSDoc',
+            'TSDocComment',
+            '@comment',
+            '@comment.documentation',
+            'comment',
+            'jsDoc',
+            'jsdoc',
+            'markdownComment',
+            'LspDiagnosticsDefaultComment', -- extra fallbacks
+          } do
+            pcall(vim.api.nvim_set_hl, 0, hl, { fg = fg, italic = true })
+          end
+        end
+
+        vim.api.nvim_create_autocmd({ 'ColorScheme' }, {
+          pattern = '*',
+          callback = set_darker_comments,
+        })
+
+        vim.api.nvim_create_autocmd({ 'BufWinEnter', 'BufReadPost', 'FileType' }, {
+          pattern = '*',
+          callback = set_darker_comments,
+        })
+      end
 
       -- Use a catppuccin palette color that blends into the background
       -- local catppuccin = require('catppuccin.palettes').get_palette 'latte'
