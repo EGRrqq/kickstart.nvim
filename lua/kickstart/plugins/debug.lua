@@ -138,6 +138,8 @@ return {
         },
       },
       windows = {
+        position = 'right',
+        size = 0.55,
         terminal = {
           -- Use the actual names for the adapters you want to hide
           hide = { 'delve' }, -- `delve` is known to not use the terminal.
@@ -237,6 +239,8 @@ return {
     }
 
     dap.configurations.cpp = {
+      -- Launch without debug
+
       -- Your existing "launch a.out" style
       {
         name = 'Launch',

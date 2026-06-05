@@ -262,9 +262,23 @@ vim.api.nvim_create_autocmd({ 'FocusGained', 'BufEnter', 'CursorHold', 'CursorHo
   pattern = '*',
 })
 
-vim.keymap.set('n', '<space>sx', '<cmd>source %<CR>')
-vim.keymap.set('n', '<space>se', ':.lua<CR>')
-vim.keymap.set('v', '<space>se', ':lua<CR>')
+-- Run `luau` on the current file (requires `luau` in $PATH)
+vim.keymap.set('n', '<leader>xl', '<cmd>write | !luau %<CR>', {
+  noremap = true,
+  silent = false,
+  desc = 'Save and run luau on current file',
+})
+
+-- Compile with clang -g, produce a .out binary, and run it only on success
+vim.keymap.set('n', '<leader>xc', '<cmd>write | !clang -g %:p -o %:p:r.out ; %:p:r.out<CR>', {
+  noremap = true,
+  silent = false,
+  desc = 'Save, compile (clang -g) and run current C file',
+})
+
+vim.keymap.set('n', '<leader>xx', '<cmd>write | source %<CR>', { noremap = true, silent = false, desc = 'Save buffer and source current file' })
+vim.keymap.set('n', '<leader>xe', '<cmd>write<CR>:.lua<CR>', { noremap = true, silent = false, desc = 'Save and execute current line as Lua' })
+vim.keymap.set('v', '<leader>xe', ':write<CR>:lua<CR>', { noremap = true, silent = false, desc = 'Save selection and open :lua for visual range' })
 
 -- Generalized helper for inserting JSDoc-like comments and positioning the cursor
 local function map_jsdoc_template(key, insert_cmd, template, left_shifts)
@@ -575,7 +589,16 @@ require('lazy').setup({
       {
         'saghen/blink.cmp',
         opts = {
-          enabled = function() return vim.b.completion ~= false end,
+          enabled = function()
+            if vim.g.learning_mode then return false end
+            -- Disable completion when the two chars before the cursor are '*/'
+            local col = vim.fn.col '.' - 1
+            if col >= 2 then
+              local line = vim.fn.getline '.'
+              if line:sub(col - 1, col) == '*/' then return false end
+            end
+            return true
+          end,
         },
         config = function(_, opts) require('blink.cmp').setup(opts) end,
       },
@@ -583,7 +606,6 @@ require('lazy').setup({
     config = function()
       -- Toggle blink.cmp autocompletion (buffer-local, default on)
       vim.keymap.set('n', '<leader>tc', function()
-        vim.b.completion = not (vim.b.completion ~= false)
         if vim.b.completion then
           vim.notify('Autocompletion enabled', vim.log.levels.INFO)
         else
@@ -601,25 +623,20 @@ require('lazy').setup({
         vim.notify(msg, vim.log.levels.INFO)
       end, { desc = 'Toggle diagnostic display' })
 
-      -- Master toggle: enable/disable everything (completion, linting, diagnostics)
+      -- Global master toggle: enable/disable everything (completion, linting, diagnostics)
       vim.keymap.set('n', '<leader>ta', function()
-        local bufnr = vim.api.nvim_get_current_buf()
-        vim.b.learning_mode = not vim.b.learning_mode
-
-        if vim.b.learning_mode then
-          -- Turn everything OFF
-          vim.b.completion = false
-          vim.b.lint_enabled = false
-          vim.diagnostic.enable(false, { bufnr = bufnr })
+        vim.g.learning_mode = not vim.g.learning_mode
+        if vim.g.learning_mode then
+          -- Turn everything OFF globally
+          vim.diagnostic.enable(false) -- disables diagnostics in all buffers
+          require('blink.cmp').hide()
           vim.notify('Learning mode ON (completion, linting, diagnostics hidden)', vim.log.levels.INFO)
         else
-          -- Turn everything ON
-          vim.b.completion = true
-          vim.b.lint_enabled = true
-          vim.diagnostic.enable(true, { bufnr = bufnr })
+          -- Turn everything ON globally
+          vim.diagnostic.enable(true) -- re‑enables diagnostics everywhere
           vim.notify('Learning mode OFF (everything enabled)', vim.log.levels.INFO)
         end
-      end, { desc = 'Toggle learning mode (completion + lint + diagnostics)' })
+      end, { desc = 'Toggle global learning mode', silent = true })
 
       -- Brief aside: **What is LSP?**
       --
@@ -1037,8 +1054,9 @@ require('lazy').setup({
         -- Force darker comment color globally, for treesitter and JSDoc-like highlights; reapply after colorscheme and on buffer events
         local function set_darker_comments()
           local fg = '#1C1E8A' -- adjust hex to taste
-          vim.api.nvim_set_hl(0, 'Comment', { fg = fg, italic = true })
+          -- vim.api.nvim_set_hl(0, 'Comment', { fg = fg, italic = true })
           for _, hl in ipairs {
+            'Comment',
             'TSComment',
             'TSComment.documentation',
             'TSDoc',
@@ -1049,6 +1067,8 @@ require('lazy').setup({
             'jsDoc',
             'jsdoc',
             'markdownComment',
+            'comment_content', -- for lua
+            '@lsp.type.comment', -- semantic-token / LSP comment group (often applied after attach)
             'LspDiagnosticsDefaultComment', -- extra fallbacks
           } do
             pcall(vim.api.nvim_set_hl, 0, hl, { fg = fg, italic = true })

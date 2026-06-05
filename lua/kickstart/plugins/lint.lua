@@ -31,7 +31,7 @@ return {
 
       -- Toggle nvim-lint (buffer-local, default on)
       vim.keymap.set('n', '<leader>tl', function()
-        vim.b.lint_enabled = not (vim.b.lint_enabled ~= false)
+        if vim.bo.modifiable and not vim.g.learning_mode then lint.try_lint() end
         local msg = vim.b.lint_enabled and 'Linting enabled' or 'Linting disabled'
         vim.notify(msg, vim.log.levels.INFO)
       end, { desc = 'Toggle linting' })
