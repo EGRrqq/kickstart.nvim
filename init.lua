@@ -262,6 +262,13 @@ vim.api.nvim_create_autocmd({ 'FocusGained', 'BufEnter', 'CursorHold', 'CursorHo
   pattern = '*',
 })
 
+-- Compile with clang -g, produce a .out binary, and run it only on success
+vim.keymap.set('n', '<leader>xd', '<cmd>write | !deno run -A %:p<CR>', {
+  noremap = true,
+  silent = false,
+  desc = 'Save, compile (deno -A) and run current js/ts file',
+})
+
 -- Run `luau` on the current file (requires `luau` in $PATH)
 vim.keymap.set('n', '<leader>xl', '<cmd>write | !luau %<CR>', {
   noremap = true,
@@ -736,15 +743,22 @@ require('lazy').setup({
       --  See `:help lsp-config` for information about keys and how to configure
       ---@type table<string, vim.lsp.Config>
       local servers = {
-        tsgo = {},
-        denols = {},
-        emmet_language_server = {},
+        tsgo = {
+          workspace_required = true,
+          root_markers = { 'package.json' },
+        },
+        denols = {
+          workspace_required = true,
+          root_markers = { 'deno.json', 'deno.jsonc' },
+        },
         markuplint = {},
         biome = {},
         oxfmt = {},
-        ['css-lsp'] = {},
-        ['css-variables-language-server'] = {},
-        csskit = {},
+        cssls = {},
+        css_variables = {},
+        cssmodules_ls = {},
+        -- csskit = {},
+        emmet_language_server = {},
         ['html-lsp'] = {},
         ['htmx-lsp'] = {},
         ['wc-language-server'] = {},
@@ -873,6 +887,7 @@ require('lazy').setup({
         python = { 'isort', 'black' },
         --
         -- You can use 'stop_after_first' to run the first available formatter from the list
+
         javascript = { 'deno_fmt', stop_after_first = true },
         javascriptreact = { 'deno_fmt', stop_after_first = true },
         typescript = { 'deno_fmt', stop_after_first = true },
